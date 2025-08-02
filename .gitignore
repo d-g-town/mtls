@@ -1,0 +1,48 @@
+# Certificate files (security sensitive)
+certificates/*.pem
+certificates/*.key
+certificates/*.crt
+certificates/*.csr
+certificates/*.srl
+
+# Go build artifacts
+service1/service1
+service2/service2
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test files
+*.test
+*.out
+
+# Go coverage files
+*.cover
+*.coverprofile
+
+# Go mod cache
+go.sum
+
+# Docker volumes
+.docker/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log

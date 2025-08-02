@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  service1:
+    build:
+      context: ./service1
+      dockerfile: Dockerfile
+    container_name: service1
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./certificates:/certs:ro
+    networks:
+      - mtls-network
+    depends_on:
+      - certificates
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-check-certificate",
+          "--spider",
+          "https://localhost:8443/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  service2:
+    build:
+      context: ./service2
+      dockerfile: Dockerfile
+    container_name: service2
+    ports:
+      - "8444:8444"
+    volumes:
+      - ./certificates:/certs:ro
+    networks:
+      - mtls-network
+    depends_on:
+      - certificates
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-check-certificate",
+          "--spider",
+          "https://localhost:8444/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Certificate generator service (runs once to generate certificates)
+  certificates:
+    image: alpine:latest
+    container_name: cert-generator
+    volumes:
+      - ./certificates:/certs
+    working_dir: /certs
+    command: >
+      sh -c "
+        apk add --no-cache openssl bash &&
+        if [ ! -f ca.pem ]; then
+          echo 'Generating certificates...' &&
+          chmod +x generate-certs.sh &&
+          ./generate-certs.sh
+        else
+          echo 'Certificates already exist'
+        fi
+      "
+    restart: "no"
+
+networks:
+  mtls-network:
+    driver: bridge
